@@ -1,0 +1,21 @@
+MIKE GORDON v1.0 - install on your Mac (VST3 for FL Studio)
+============================================================
+
+1. Unzip this folder. Inside is "MIKE GORDON.vst3".
+2. Copy "MIKE GORDON.vst3" into this folder:
+       /Library/Audio/Plug-Ins/VST3
+   (In Finder: Go > Go to Folder..., paste the path, then drag the .vst3 in.
+    macOS asks for your password because this folder is shared by all users.)
+   Use the main /Library folder, not the one inside your home folder.
+3. Open FL Studio and go to  Options > Manage plugins > Find plugins.
+   MIKE GORDON shows up under Effects (made by koobacorp).
+4. Put it on a mixer track or straight on a sample/loop channel.
+
+If macOS says the plug-in "can't be opened" or FL doesn't list it:
+   This build is ad-hoc signed (not notarized by Apple). Run this once in Terminal:
+       sudo xattr -dr com.apple.quarantine "/Library/Audio/Plug-Ins/VST3/MIKE GORDON.vst3"
+   then do Find plugins again in FL.
+
+Sidechain ducking (optional): in FL, route the kick's mixer track to MIKE GORDON's track
+as "Sidechain to this track", then in the plug-in wrapper's Processing tab pick the sidechain
+input for MIKE GORDON's Sidechain bus and set Width + Duck > more > Duck source to "Sidechain".
