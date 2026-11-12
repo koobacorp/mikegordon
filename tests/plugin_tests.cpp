@@ -92,6 +92,8 @@ int main() {
       juce::MemoryBlock mb; a.p.getStateInformation(mb); Rig b; b.p.setStateInformation(mb.getData(), (int)mb.getSize());
       CHECK((int)b.p.value(P_AMP_VOICE) == 3); CHECK(std::abs(b.p.value(P_SPC_MIX) - 61) < 0.01f); CHECK(std::abs(b.p.value(P_FLT_LP) - 1234) < 0.5f);
       auto o = b.p.getOrder(); CHECK(o[0] == 5 && o[1] == 0 && o[5] == 4); CHECK(b.p.macros().s[2][3].param == P_MOT_RATE && std::abs(b.p.macros().s[2][3].depth + 0.5f) < 1e-4f); CHECK(b.p.locked(S_SPACE) && !b.p.locked(S_TONE));
+      { Rig c; juce::MemoryBlock m0; c.p.param(P_AMP_ON)->setValueNotifyingHost(1.f); c.p.getStateInformation(m0); c.p.param(P_AMP_ON)->setValueNotifyingHost(0.81f); // pluginval-style
+        c.p.setStateInformation(m0.getData(), (int)m0.getSize()); CHECKM(std::abs(c.p.param(P_AMP_ON)->getValue() - 1.f) < 1e-4f, "switch restored as %f", c.p.param(P_AMP_ON)->getValue()); }
       b.p.setStateInformation("junk", 4); CHECK((int)b.p.value(P_AMP_VOICE) == 3); }
 
     { std::puts("- factory presets as host programs");

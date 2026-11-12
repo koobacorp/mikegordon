@@ -132,6 +132,9 @@ void MikeGordonProcessor::setStateInformation(const void* data, int size) {
     auto xml = getXmlFromBinary(data, size); if (!xml) return; auto st = juce::ValueTree::fromXml(*xml); if (!st.hasType(apvts.state.getType())) return;
     auto extra = st.getChildWithName("EXTRA").createCopy(); if (extra.isValid()) st.removeChild(st.getChildWithName("EXTRA"), nullptr);
     apvts.replaceState(st); restoreExtra(extra);
+    // JUCE skips params whose stored value already matches its cached (snapped) value, so an on/off switch the host left at
+    // e.g. 0.81 would keep reporting 0.81. Push the restored value back so the host sees exactly what was saved.
+    for (int i = 0; i < kNumParams; ++i) { auto* prm = param(i); float want = prm->convertTo0to1(raw[(size_t)i]->load()); if (std::abs(prm->getValue() - want) > 1e-6f) prm->setValueNotifyingHost(want); }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
