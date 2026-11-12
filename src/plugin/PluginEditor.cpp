@@ -24,7 +24,8 @@ void Card::paint(juce::Graphics& g) {
     g.setColour(col::edge); g.drawRoundedRectangle(r, 12, 1.2f);
     auto h = getLocalBounds().removeFromTop(30).reduced(10, 0);
     if (onBtn) h.removeFromLeft(44);
-    g.setColour(col::cream); g.setFont(font(16, true)); g.drawText(title.toUpperCase(), h, juce::Justification::centredLeft);
+    if (lockBtn.isVisible() && lockBtn.getX() > h.getX()) h.setRight(lockBtn.getX() - 4); // never run under the header buttons
+    g.setColour(col::cream); g.setFont(font(16, true)); g.drawFittedText(title.toUpperCase(), h, juce::Justification::centredLeft, 1, 0.8f);
     if (moreOpen) { g.setColour(col::honey); g.setFont(font(12)); g.drawText("less-used controls", getLocalBounds().removeFromBottom(18).reduced(10, 0), juce::Justification::centredLeft); }
 }
 static void gridLayout(std::vector<juce::Component*>& v, juce::Rectangle<int> r, int cols, int rowH) {
@@ -165,7 +166,7 @@ MikeGordonEditor::MikeGordonEditor(MikeGordonProcessor& p) : AudioProcessorEdito
                     {{c->own(new Knob(p, P_SPC_SHIMMER)), c->own(new Knob(p, P_SPC_TIME, "Time")), c->own(new Choice(p, P_SPC_DIV, "Time"))}, pickTime}};
       c->toggles = {c->own(new Toggle(p, P_SPC_FREEZE))};
       c->more = {c->own(new Knob(p, P_SPC_PRE)), c->own(new Toggle(p, P_SPC_SYNC)), c->own(new Toggle(p, P_SPC_PING)), c->own(new Knob(p, P_SPC_SHIMMER, "Shimmer"))}; }
-    { auto* c = mk("Width + Duck", P_WID_ON, S_WIDTH); c->big = c->own(new Knob(p, P_WID_WIDTH));
+    { auto* c = mk("Width", P_WID_ON, S_WIDTH); c->big = c->own(new Knob(p, P_WID_WIDTH));
       c->mediums = {{{c->own(new Knob(p, P_WID_FREQ, "Mono below"))}, nullptr}, {{c->own(new Knob(p, P_DUK_DEPTH, "Duck"))}, nullptr}, {{c->own(new Choice(p, P_DUK_DIV, "Pump"))}, nullptr}};
       c->toggles = {c->own(new Toggle(p, P_WID_MONO, "Mono bass")), c->own(new Toggle(p, P_DUK_ON, "Duck"))};
       c->more = {c->own(new Choice(p, P_DUK_SRC, "Duck source")), c->own(new Choice(p, P_DUK_TARGET, "Duck target")), c->own(new Knob(p, P_DUK_SHAPE)), c->own(new Knob(p, P_DUK_THRESH, "Threshold")), c->own(new Knob(p, P_DUK_RELEASE, "Release"))}; }
