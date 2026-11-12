@@ -74,8 +74,11 @@ int main() {
     { std::puts("- silence in = silence out with defaults; bypass and Amount 0 pass audio unchanged");
       Rig r; auto s = r.run({std::vector<float>(48000, 0.f), std::vector<float>(48000, 0.f)}); CHECK(rms(s[0]) == 0 && rms(s[1]) == 0);
       auto in = pluck(48000, 1.0);
-      { Rig a; a.p.setValue(P_SPC_ON, 1); a.p.setValue(P_BYPASS, 1); auto o = a.run(in); bool same = true; for (size_t i = 0; i < in[0].size(); ++i) same &= o[0][i] == in[0][i] && o[1][i] == in[1][i]; CHECK(same); }
-      { Rig a; a.p.setValue(P_SPC_ON, 1); a.p.setValue(P_AMOUNT, 0); auto o = a.run(in); bool same = true; for (size_t i = 0; i < in[0].size(); ++i) same &= o[0][i] == in[0][i]; CHECK(same); }
+      auto exact = [&](const std::vector<std::vector<float>>& o, const char* what) { int bad = 0; size_t first = 0; for (size_t i = 0; i < in[0].size(); ++i) for (int c = 0; c < 2; ++c) if (o[(size_t)c][i] != in[(size_t)c][i]) { if (!bad) first = i * 2 + (size_t)c; ++bad; }
+          if (bad) std::printf("  %s: %d samples differ, first at %zu ch %zu: %.9g vs %.9g\n", what, bad, first / 2, first % 2, o[first % 2][first / 2], in[first % 2][first / 2]); return bad == 0; };
+      { Rig a; a.p.setValue(P_SPC_ON, 1); a.p.setValue(P_BYPASS, 1); auto o = a.run(in); CHECK(exact(o, "bypass")); }
+      { Rig a; a.p.setValue(P_SPC_ON, 1); a.p.setValue(P_AMOUNT, 0); auto o = a.run(in); CHECK(exact(o, "amount 0")); }
+      { Rig a; a.p.setValue(P_AMP_ON, 0); a.p.setValue(P_WID_ON, 0); auto o = a.run(in); CHECK(exact(o, "all sections off")); }
       { Rig a; juce::AudioBuffer<float> b(4, 256); for (int i = 0; i < 256; ++i) { b.setSample(0, i, 0.2f); b.setSample(1, i, -0.2f); } juce::MidiBuffer m; a.p.processBlockBypassed(b, m); CHECK(b.getSample(0, 100) == 0.2f && b.getSample(1, 100) == -0.2f); }
       { Rig a; a.p.loadFactory(10); auto o = a.run(in); CHECK(finite(o)); CHECK(rms(o[0]) > 0.01); double d = 0; for (size_t i = 0; i < in[0].size(); ++i) d += std::abs(o[0][i] - in[0][i]); CHECK(d / (double)in[0].size() > 1e-3); } }
 
