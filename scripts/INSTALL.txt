@@ -18,4 +18,4 @@ If macOS says the plug-in "can't be opened" or FL doesn't list it:
 
 Sidechain ducking (optional): in FL, route the kick's mixer track to MIKE GORDON's track
 as "Sidechain to this track", then in the plug-in wrapper's Processing tab pick the sidechain
-input for MIKE GORDON's Sidechain bus and set Width + Duck > more > Duck source to "Sidechain".
+input for MIKE GORDON's Sidechain bus and set the Width card > more > Duck source to "Sidechain".

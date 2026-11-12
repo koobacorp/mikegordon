@@ -8,7 +8,7 @@ Card::Card(MikeGordonProcessor& p, const juce::String& t, int sw, int ls) : titl
     lockBtn.setToggleState(p.locked(ls), juce::dontSendNotification); lockBtn.onClick = [this] { proc.setLocked(lockSec, lockBtn.getToggleState()); };
     moreBtn.setTooltip("Show the less-used controls of this section"); moreBtn.onClick = [this] { setMore(!moreOpen); }; addAndMakeVisible(moreBtn);
 }
-void Card::setMore(bool b) { moreOpen = b; moreBtn.setButtonText(b ? "back" : "more"); refresh(); resized(); repaint(); }
+void Card::setMore(bool b) { moreOpen = b && !more.empty(); moreBtn.setButtonText(b ? "back" : "more"); refresh(); resized(); repaint(); }
 void Card::refresh() {
     moreBtn.setVisible(!more.empty());
     if (typeRow) typeRow->setVisible(!moreOpen); if (big) big->setVisible(!moreOpen);
@@ -36,7 +36,11 @@ void Card::resized() {
     if (onBtn) onBtn->setBounds(h.removeFromLeft(40));
     moreBtn.setBounds(h.removeFromRight(46)); h.removeFromRight(4); lockBtn.setBounds(h.removeFromRight(40));
     r.removeFromBottom(6);
-    if (moreOpen) { auto m = r.withTrimmedBottom(16); gridLayout(more, m, 3, std::min(76, m.getHeight() / std::max(1, ((int)more.size() + 2) / 3))); return; }
+    if (moreOpen) { // switches and pickers get a full-width row each (so their labels fit), knobs share a 3-wide grid below
+        auto m = r.withTrimmedBottom(16); std::vector<juce::Component*> knobs;
+        for (auto* c : more) { if (dynamic_cast<ui::Knob*>(c)) { knobs.push_back(c); continue; } c->setBounds(m.removeFromTop(dynamic_cast<ui::Choice*>(c) ? 46 : 30).reduced(3, 2)); }
+        if (!knobs.empty()) gridLayout(knobs, m, 3, std::min(76, m.getHeight() / std::max(1, ((int)knobs.size() + 2) / 3)));
+        return; }
     if (typeRow) { typeRow->setBounds(r.removeFromTop(24)); r.removeFromTop(4); }
     if (!toggles.empty()) { auto t = r.removeFromBottom(24); int w = t.getWidth() / (int)toggles.size(); for (auto* c : toggles) c->setBounds(t.removeFromLeft(w).reduced(3, 0)); r.removeFromBottom(4); }
     int medH = mediums.empty() ? 0 : 74; auto m = r.removeFromBottom(medH);

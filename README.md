@@ -26,7 +26,7 @@ distortion: it makes things smooth, dreamy, dusty, wobbly or wide. VST3 for FL S
   Noise only plays while sound is coming in (switch that off under "more").
 - **Space.** Spring, Plate or Echo. Mix is the big knob. Shimmer adds a sparkly octave on top.
   Freeze holds the current sound as a pad. For Echo, the third knob becomes the echo time.
-- **Width + Duck.** Width spreads the sound; Mono bass keeps the low end in the centre so it
+- **Width (with Duck).** Width spreads the sound; Mono bass keeps the low end in the centre so it
   doesn't fight your 808. Duck makes the effect pump with the beat (tempo pump by default,
   or a real sidechain - see INSTALL.txt).
 
