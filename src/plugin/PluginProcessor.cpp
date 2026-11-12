@@ -59,7 +59,8 @@ void MikeGordonProcessor::run(juce::AudioBuffer<float>& buffer, bool bypassed) {
     const float* scL = nullptr; const float* scR = nullptr;
     if (getBusCount(true) > 1 && getBus(true, 1)->isEnabled()) { auto sc = getBusBuffer(buffer, true, 1); if (sc.getNumChannels() > 0) { scL = sc.getReadPointer(0); scR = sc.getReadPointer(std::min(1, sc.getNumChannels() - 1)); } }
     // parameters + macros
-    for (int i = 0; i < kNumParams; ++i) base[i] = raw[(size_t)i]->load();
+    for (int i = 0; i < kNumParams; ++i) { // host value round-trips (0..1 -> range) leave ~1e-7 errors; snap those to the intended whole value so 0 dB is exactly unity
+        float v = raw[(size_t)i]->load(), r = std::round(v); base[i] = std::abs(v - r) <= 1e-5f * std::max(1.f, kParams[i].max - kParams[i].min) ? r : v; }
     applyMacros(base, eff, macros());
     int o[kMovable]; for (int i = 0; i < kMovable; ++i) o[i] = order[(size_t)i].load(); eng.setOrder(o);
     HostInfo hi;
